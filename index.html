@@ -19,16 +19,16 @@
       transition: transform 0.1s ease-out; will-change: transform;
     }
 
-    /* 1번 레이어: 우주 배경 */
+    /* 1번 레이어: 우주 배경 (Unsplash 무료 이미지) */
     .bg-layer {
       background-image: url('https://unsplash.com');
       z-index: 1;
     }
 
-    /* 2번 레이어: 투명 우주비행사 캐릭터 */
+    /* 2번 레이어: 인물 (외부 링크 차단이 없는 안전한 무료 로켓 투명 PNG) */
     .hero-layer {
-      background-image: url('https://pngtree.com');
-      background-size: contain; background-repeat: no-repeat; background-position: center bottom 20%;
+      background-image: url('https://openclipart.org');
+      background-size: contain; background-repeat: no-repeat; background-position: center center;
       z-index: 2;
     }
 
@@ -78,7 +78,6 @@
     }
 
     startBtn.addEventListener('click', () => {
-      // iOS 환경 권한 요청 처리
       if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
         DeviceOrientationEvent.requestPermission()
           .then(response => {
@@ -90,7 +89,6 @@
             }
           }).catch(console.error);
       } else {
-        // 안드로이드 크롬 환경: 보안 주소(https)라면 즉시 활성화 가능
         window.addEventListener('deviceorientation', handleOrientation);
         startBtn.style.display = 'none';
       }
