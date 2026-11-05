@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2-Layer Gyroscope Parallax</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html { width: 100%; height: 100%; overflow: hidden; background: #111; display: flex; justify-content: center; align-items: center; font-family: sans-serif; }
+
+    .card-container {
+      position: relative; width: 90vw; max-width: 380px; height: 60vh; max-height: 550px;
+      border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); overflow: hidden; background: #222;
+    }
+
+    .layer {
+      position: absolute; top: -15%; left: -15%; width: 130%; height: 130%;
+      background-size: cover; background-position: center;
+      transition: transform 0.1s ease-out; will-change: transform;
+    }
+
+    /* 1번 레이어: 우주 배경 */
+    .bg-layer {
+      background-image: url('https://unsplash.com');
+      z-index: 1;
+    }
+
+    /* 2번 레이어: 투명 우주비행사 캐릭터 */
+    .hero-layer {
+      background-image: url('https://pngtree.com');
+      background-size: contain; background-repeat: no-repeat; background-position: center bottom 20%;
+      z-index: 2;
+    }
+
+    .info-overlay {
+      position: absolute; bottom: 20px; left: 0; right: 0; text-align: center; z-index: 10;
+    }
+    .btn-sensor {
+      padding: 12px 24px; background: #ff4757; color: white; border: none;
+      border-radius: 30px; font-weight: bold; font-size: 14px; cursor: pointer;
+      box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card-container">
+    <div class="layer bg-layer" id="bg"></div>
+    <div class="layer hero-layer" id="hero"></div>
+    <div class="info-overlay">
+      <button class="btn-sensor" id="startBtn">터치하여 3D 자이로 활성화</button>
+    </div>
+  </div>
+
+  <script>
+    const bg = document.getElementById('bg');
+    const hero = document.getElementById('hero');
+    const startBtn = document.getElementById('startBtn');
+
+    const BG_SPEED = 0.2;
+    const HERO_SPEED = 0.8;
+
+    function handleOrientation(event) {
+      let x = event.gamma || 0;
+      let y = event.beta || 0;
+
+      x = Math.max(-30, Math.min(30, x));
+      y = Math.max(-30, Math.min(30, y));
+
+      const bgX = -x * BG_SPEED;
+      const bgY = -(y - 45) * BG_SPEED;
+
+      const heroX = -x * HERO_SPEED;
+      const heroY = -(y - 45) * HERO_SPEED;
+
+      bg.style.transform = `translate(${bgX}px, ${bgY}px)`;
+      hero.style.transform = `translate(${heroX}px, ${heroY}px)`;
+    }
+
+    startBtn.addEventListener('click', () => {
+      // iOS 환경 권한 요청 처리
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        DeviceOrientationEvent.requestPermission()
+          .then(response => {
+            if (response === 'granted') {
+              window.addEventListener('deviceorientation', handleOrientation);
+              startBtn.style.display = 'none';
+            } else {
+              alert('센서 권한이 거부되었습니다.');
+            }
+          }).catch(console.error);
+      } else {
+        // 안드로이드 크롬 환경: 보안 주소(https)라면 즉시 활성화 가능
+        window.addEventListener('deviceorientation', handleOrientation);
+        startBtn.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
