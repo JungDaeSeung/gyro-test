@@ -10,45 +10,65 @@
 
     .card-container {
       position: relative; width: 90vw; max-width: 380px; height: 60vh; max-height: 550px;
-      border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); overflow: hidden; background: #222;
+      border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); overflow: hidden; background: #0b0f19;
     }
 
     .layer {
-      position: absolute; top: -15%; left: -15%; width: 130%; height: 130%;
-      background-size: cover; background-position: center;
+      position: absolute; top: -20%; left: -20%; width: 140%; height: 140%;
       transition: transform 0.1s ease-out; will-change: transform;
+      display: flex; justify-content: center; align-items: center;
     }
 
-    /* 1번 레이어: 우주 배경 (Unsplash 무료 이미지) */
+    /* 1번 레이어: 코드 자체로 그린 우주 별빛 배경 */
     .bg-layer {
-      background-image: url('https://unsplash.com');
+      background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
       z-index: 1;
     }
+    /* 배경 레이어 안의 미세한 별빛 효과 */
+    .bg-layer::before {
+      content: ''; position: absolute; width: 100%; height: 100%;
+      background-image: radial-gradient(white 1px, transparent 1px), radial-gradient(white 2px, transparent 2px);
+      background-size: 50px 50px, 100px 100px; background-position: 0 0, 40px 40px; opacity: 0.4;
+    }
 
-    /* 2번 레이어: 인물 (외부 링크 차단이 없는 안전한 무료 로켓 투명 PNG) */
+    /* 2번 레이어: 코드 자체로 그린 큰 보라색 행성 (인물/오브젝트 역할) */
     .hero-layer {
-      background-image: url('https://openclipart.org');
-      background-size: contain; background-repeat: no-repeat; background-position: center center;
-      z-index: 2;
+      z-index: 2; pointer-events: none;
+    }
+    .planet {
+      width: 160px; height: 160px; border-radius: 50%;
+      background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+      box-shadow: inset -10px -10px 30px rgba(0,0,0,0.5), 0 0 40px rgba(161, 140, 209, 0.6);
+      position: relative;
+    }
+    /* 행성을 가로지르는 고리 효과 */
+    .planet::after {
+      content: ''; position: absolute; top: 50%; left: -30px; width: 220px; height: 20px;
+      border: 6px solid rgba(255, 255, 255, 0.5); border-radius: 50%;
+      transform: translateY(-50%) rotate(-15deg);
     }
 
     .info-overlay {
-      position: absolute; bottom: 20px; left: 0; right: 0; text-align: center; z-index: 10;
+      position: absolute; bottom: 30px; left: 0; right: 0; text-align: center; z-index: 10;
     }
     .btn-sensor {
-      padding: 12px 24px; background: #ff4757; color: white; border: none;
-      border-radius: 30px; font-weight: bold; font-size: 14px; cursor: pointer;
-      box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
+      padding: 14px 28px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white; border: none; border-radius: 30px; font-weight: bold; font-size: 15px;
+      cursor: pointer; box-shadow: 0 5px 20px rgba(118, 75, 162, 0.4);
     }
   </style>
 </head>
 <body>
 
   <div class="card-container">
+    <!-- 이미지 파일 없이 순수 코드로 구현된 2개의 레이어 -->
     <div class="layer bg-layer" id="bg"></div>
-    <div class="layer hero-layer" id="hero"></div>
+    <div class="layer hero-layer" id="hero">
+      <div class="planet"></div>
+    </div>
+
     <div class="info-overlay">
-      <button class="btn-sensor" id="startBtn">터치하여 3D 자이로 활성화</button>
+      <button class="btn-sensor" id="startBtn">3D 자이로 활성화하기</button>
     </div>
   </div>
 
@@ -57,16 +77,19 @@
     const hero = document.getElementById('hero');
     const startBtn = document.getElementById('startBtn');
 
-    const BG_SPEED = 0.2;
-    const HERO_SPEED = 0.8;
+    // 시차 효과를 극대화하기 위한 가중치 세팅
+    const BG_SPEED = 0.15;  // 배경은 아주 미세하게
+    const HERO_SPEED = 0.9; // 앞의 행성은 크게 꿀렁이도록
 
     function handleOrientation(event) {
       let x = event.gamma || 0;
       let y = event.beta || 0;
 
+      // 일반적인 스마트폰 사용 각도 보정 및 한계선 설정
       x = Math.max(-30, Math.min(30, x));
       y = Math.max(-30, Math.min(30, y));
 
+      // 시선 반전 알고리즘 적용 (기울이는 폰 방향과 반대로 이미지가 밀려 공간감 생성)
       const bgX = -x * BG_SPEED;
       const bgY = -(y - 45) * BG_SPEED;
 
